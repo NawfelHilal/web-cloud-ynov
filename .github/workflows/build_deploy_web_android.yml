@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 20.x ]
+        node-version: [ 24.x ]
 
     steps:
       - name: 🏗 Setup repo
@@ -40,7 +40,7 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: 🚀 Create update
-        run: eas update --auto --platform android --non-interactive
+        run: eas build --platform android --non-interactive --no-wait
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
