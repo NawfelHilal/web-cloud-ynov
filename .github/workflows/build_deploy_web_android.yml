@@ -1,13 +1,17 @@
 name: build and deploy Web & Android
 
+# Controls when the action will run.
 on:
+  # Triggers the workflow on push or pull request events but only for main branch
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
+# Une exécution de flux de travail est composée d'une ou plusieurs tâches appelés jobs.
 jobs:
   build:
+    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
     steps:
@@ -23,13 +27,7 @@ jobs:
       - name: 📦 Install dependencies
         run: npm install
 
-      - name: 🚀 Export Web
-        run: npx expo export -p web
-
-      - name: 📂 Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: dist
-          branch: gh-pages
-
-          
+      - name: 🚀 Deploy
+        run: npm run deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
