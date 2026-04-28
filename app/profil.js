@@ -7,9 +7,14 @@ import { auth } from '../auth/firebaseConfig';
 export default function Profil() {
   const user = auth.currentUser;
 
-  const handleLogout = () => {
-    auth.signOut();
-    router.replace('/');
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      Toast.show({ type: 'info', text1: 'Déconnexion', text2: 'À bientôt !' });
+      router.replace('/connexion');
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (
@@ -27,9 +32,14 @@ export default function Profil() {
             <Ionicons name="person" size={40} color="#FFF" />
           </View>
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>Utilisateur Cloud</Text>
-            <Text style={styles.profileEmail}>{user?.email || 'Email non disponible'}</Text>
+            <Text style={styles.profileName}>{user?.displayName || 'Utilisateur Cloud'}</Text>
+            <Text style={styles.profileEmail}>{user?.email || (user?.isAnonymous ? 'Mode Anonyme' : 'Email non disponible')}</Text>
           </View>
+        </View>
+
+        <View style={styles.messageCard}>
+          <Ionicons name="information-circle-outline" size={32} color="#007AFF" style={{ marginBottom: 16 }} />
+          <Text style={styles.messageText}>Ici s'affichera prochainement votre profil</Text>
         </View>
 
         <View style={styles.statsContainer}>
@@ -140,6 +150,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#64748B',
     marginTop: 2,
+  },
+  messageCard: {
+    backgroundColor: '#FFF',
+    padding: 24,
+    borderRadius: 24,
+    marginBottom: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#E0F2FE',
+    borderStyle: 'dashed',
+  },
+  messageText: {
+    fontSize: 16,
+    color: '#0369A1',
+    fontWeight: '600',
+    textAlign: 'center',
   },
   statsContainer: {
     flexDirection: 'row',

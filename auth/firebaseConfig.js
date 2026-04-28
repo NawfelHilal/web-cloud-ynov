@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBsOrbjsbDt6NISqEOTEk8pnVZjGWDZvwI",
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
   authDomain: "web-cloud-ynov-fee89.firebaseapp.com",
   projectId: "web-cloud-ynov-fee89",
   storageBucket: "web-cloud-ynov-fee89.firebasestorage.app",

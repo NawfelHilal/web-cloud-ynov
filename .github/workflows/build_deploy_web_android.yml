@@ -32,6 +32,8 @@ jobs:
 
       - name: Build web app
         run: npm run predeploy
+        env:
+          EXPO_PUBLIC_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
 
       - name: 🏗 Setup EAS
         uses: expo/expo-github-action@v8

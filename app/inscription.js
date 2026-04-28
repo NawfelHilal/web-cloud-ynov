@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 
 export default function Inscription() {
+  const [name, onChangeName] = useState("");
   const [email, onChangeEmail] = useState("");
   const [password, onChangePassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,7 @@ export default function Inscription() {
 
   const handleSignup = async () => {
     // 1. Validation des champs vides
-    if (!email || !password) {
+    if (!name || !email || !password) {
       Toast.show({ type: 'error', text1: 'Champs requis', text2: 'Veuillez remplir tous les champs' });
       return;
     }
@@ -38,7 +39,7 @@ export default function Inscription() {
     
     setLoading(true);
     try {
-      await signup(email, password);
+      await signup(email, password, name);
       Toast.show({ type: 'success', text1: 'Bienvenue !', text2: 'Votre compte a été créé avec succès' });
       router.replace('/profil');
     } catch (error) {
@@ -64,6 +65,17 @@ export default function Inscription() {
         <Text style={styles.subtitle}>Commencez votre aventure cloud dès maintenant</Text>
 
         <View style={styles.form}>
+          <View style={styles.inputContainer}>
+            <Ionicons name="person-outline" size={20} color="#64748B" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Nom complet"
+              placeholderTextColor="#94A3B8"
+              onChangeText={onChangeName}
+              value={name}
+            />
+          </View>
+
           <View style={styles.inputContainer}>
             <Ionicons name="mail-outline" size={20} color="#64748B" style={styles.inputIcon} />
             <TextInput
