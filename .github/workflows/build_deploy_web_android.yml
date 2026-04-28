@@ -31,3 +31,5 @@ jobs:
         with:
           folder: dist
           branch: gh-pages
+
+          
