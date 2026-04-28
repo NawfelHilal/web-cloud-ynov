@@ -3,6 +3,7 @@ import { Text, View, StyleSheet, SafeAreaView, Pressable, ScrollView } from 'rea
 import { Link, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { auth } from '../auth/firebaseConfig';
+import Toast from 'react-native-toast-message';
 
 export default function Profil() {
   const user = auth.currentUser;
