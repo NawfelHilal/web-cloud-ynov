@@ -40,7 +40,7 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: 🚀 Build app
-        run: eas update --platform android --non-interactive --no-wait
+        run: eas update --auto --platform android --non-interactive
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
