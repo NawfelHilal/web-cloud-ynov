@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, Text, View, TextInput, Pressable, SafeAreaView, ActivityIndicator } from "react-native";
 import { signin } from "../auth/signin_password";
 import { signinWithGithub } from "../auth/github_signin_popup";
+import { signInWithFacebook } from "../auth/auth_facebook_signin_popup";
 import { Link, router } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
@@ -102,6 +103,22 @@ export default function Connexion() {
             <Ionicons name="logo-github" size={20} color="#FFF" style={{ marginRight: 10 }} />
             <Text style={styles.buttonText}>Continuer avec GitHub</Text>
           </Pressable>
+
+          <Pressable 
+            style={styles.facebookButton} 
+            onPress={async () => {
+              try {
+                await signInWithFacebook();
+                Toast.show({ type: 'success', text1: 'Connecté !', text2: 'Connexion Facebook réussie' });
+                router.replace('/profil');
+              } catch (e) {
+                Toast.show({ type: 'error', text1: 'Erreur Facebook', text2: e.message });
+              }
+            }}
+          >
+            <Ionicons name="logo-facebook" size={20} color="#FFF" style={{ marginRight: 10 }} />
+            <Text style={styles.buttonText}>Continuer avec Facebook</Text>
+          </Pressable>
         </View>
 
         <View style={styles.footer}>
@@ -158,6 +175,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
+  },
+  facebookButton: {
+    backgroundColor: '#1877F2',
+    height: 56,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#1877F2',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 40 },
   footerText: { color: '#64748B', fontSize: 15 },
