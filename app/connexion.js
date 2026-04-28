@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, TextInput, Pressable, SafeAreaView, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, View, TextInput, Pressable, SafeAreaView, ActivityIndicator, ScrollView } from "react-native";
 import { signin } from "../auth/signin_password";
 import { signinWithGithub } from "../auth/github_signin_popup";
 import { signInWithFacebook } from "../auth/auth_facebook_signin_popup";
