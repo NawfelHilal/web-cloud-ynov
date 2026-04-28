@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, TextInput, Pressable, SafeAreaView, ActivityIndicator } from "react-native";
 import { signin } from "../auth_signin_password";
+import { signInWithGithub } from "../auth_github";
 import { Link, router } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
@@ -80,6 +81,27 @@ export default function Connexion() {
               <Text style={styles.buttonText}>Se connecter</Text>
             )}
           </Pressable>
+
+          <View style={styles.divider}>
+            <View style={styles.line} />
+            <Text style={styles.dividerText}>OU</Text>
+            <View style={styles.line} />
+          </View>
+
+          <Pressable 
+            style={styles.githubButton} 
+            onPress={async () => {
+              try {
+                await signInWithGithub();
+                router.replace('/profil');
+              } catch (e) {
+                Toast.show({ type: 'error', text1: 'Erreur GitHub', text2: e.message });
+              }
+            }}
+          >
+            <Ionicons name="logo-github" size={20} color="#FFF" style={{ marginRight: 10 }} />
+            <Text style={styles.buttonText}>Continuer avec GitHub</Text>
+          </Pressable>
         </View>
 
         <View style={styles.footer}>
@@ -108,6 +130,35 @@ const styles = StyleSheet.create({
   button: { backgroundColor: '#007AFF', height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center', marginTop: 16, shadowColor: '#007AFF', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 5 },
   buttonDisabled: { backgroundColor: '#94A3B8' },
   buttonText: { color: '#FFF', fontSize: 18, fontWeight: '600' },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E2E8F0',
+  },
+  dividerText: {
+    color: '#64748B',
+    paddingHorizontal: 10,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  githubButton: {
+    backgroundColor: '#1E293B',
+    height: 56,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 40 },
   footerText: { color: '#64748B', fontSize: 15 },
   linkText: { color: '#007AFF', fontSize: 15, fontWeight: '700' },
