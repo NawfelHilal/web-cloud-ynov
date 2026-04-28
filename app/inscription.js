@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, TextInput, Pressable, SafeAreaView, ActivityIndicator } from "react-native";
-import { signup } from "../auth_signup_password";
+import { signup } from "../auth/signup_password";
 import { Link, router } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';

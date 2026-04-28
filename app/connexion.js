@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, TextInput, Pressable, SafeAreaView, ActivityIndicator } from "react-native";
-import { signin } from "../auth_signin_password";
-import { signInWithGithub } from "../auth_github";
+import { signin } from "../auth/signin_password";
+import { signinWithGithub } from "../auth/github_signin_popup";
 import { Link, router } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
@@ -92,7 +92,7 @@ export default function Connexion() {
             style={styles.githubButton} 
             onPress={async () => {
               try {
-                await signInWithGithub();
+                await signinWithGithub();
                 router.replace('/profil');
               } catch (e) {
                 Toast.show({ type: 'error', text1: 'Erreur GitHub', text2: e.message });

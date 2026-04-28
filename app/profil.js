@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, View, StyleSheet, SafeAreaView, Pressable, ScrollView } from 'react-native';
 import { Link, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { auth } from '../firebaseConfig';
+import { auth } from '../auth/firebaseConfig';
 
 export default function Profil() {
   const user = auth.currentUser;
