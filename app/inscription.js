@@ -102,9 +102,9 @@ export default function Inscription() {
           </View>
 
           <Pressable 
-            style={[styles.button, loading && styles.buttonDisabled]} 
+            style={[styles.button, (!name.trim() || !validateEmail(email) || password.length < 6 || loading) && styles.buttonDisabled]} 
             onPress={handleSignup}
-            disabled={loading}
+            disabled={!name.trim() || !validateEmail(email) || password.length < 6 || loading}
           >
             {loading ? (
               <ActivityIndicator color="#FFF" />
