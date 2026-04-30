@@ -1,12 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Text, View, StyleSheet, SafeAreaView, Pressable, ScrollView } from 'react-native';
 import { Link, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { auth } from '../auth/firebaseConfig';
+import { onAuthStateChanged } from 'firebase/auth';
 import Toast from 'react-native-toast-message';
 
 export default function Profil() {
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.replace('/connexion');
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const user = auth.currentUser;
+
+  if (!user) return null;
 
   const handleLogout = async () => {
     try {
