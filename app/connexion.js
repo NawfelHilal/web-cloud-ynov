@@ -152,13 +152,16 @@ export default function Connexion() {
                   <Ionicons name="call-outline" size={20} color="#64748B" style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
-                    placeholder="+33 6 12 34 56 78"
+                    placeholder="+33 1 01 02 03 04"
                     placeholderTextColor="#94A3B8"
                     onChangeText={setPhoneNumber}
                     value={phoneNumber}
                     keyboardType="phone-pad"
                   />
                 </View>
+                {phoneNumber.length > 0 && !isPhoneValid(phoneNumber) && (
+                  <Text style={styles.errorText}>Format attendu : +33 1 01 02 03 04</Text>
+                )}
 
                 {!verificationId ? (
                   <Pressable 
@@ -337,5 +340,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 12,
+    marginTop: -8,
+    marginBottom: 8,
+    marginLeft: 4,
+    fontWeight: '500',
   },
 });
