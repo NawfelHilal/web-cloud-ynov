@@ -7,6 +7,9 @@
     "icon": "./assets/images/icon.png",
     "scheme": "web-cloud-ynov",
     "userInterfaceStyle": "automatic",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true

@@ -9,7 +9,7 @@ Ce projet est une application React Native (Expo) réalisée dans le cadre du TP
 - **Architecture** : Expo Router v6
 - **Authentification Firebase** :
   - Email / Mot de passe (avec Nom complet)
-  - Téléphone (OTP)
+  - Téléphone (OTP) -> **Test : `+33 1 01 02 03 04` / Code : `123456`**
   - GitHub Popup
   - Facebook Popup
   - Connexion Anonyme

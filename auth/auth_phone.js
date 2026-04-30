@@ -7,12 +7,21 @@ export const setupRecaptcha = (containerId) => {
     if (window.recaptchaVerifier) {
       window.recaptchaVerifier.clear();
     }
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
-      'size': 'invisible',
-      'callback': (response) => {
-        // reCAPTCHA solved, allow signInWithPhoneNumber.
-      }
-    });
+    
+    // Nettoyage manuel du conteneur pour éviter l'erreur de rendu multiple
+    const container = document.getElementById(containerId);
+    if (container) {
+      container.innerHTML = '<div id="recaptcha-inner"></div>';
+      // On utilise le nouvel id interne pour le rendu
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-inner', {
+        'size': 'invisible'
+      });
+    } else {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
+        'size': 'invisible'
+      });
+    }
+    
     return window.recaptchaVerifier;
   }
 };
