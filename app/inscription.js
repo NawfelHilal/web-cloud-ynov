@@ -88,6 +88,9 @@ export default function Inscription() {
               keyboardType="email-address"
             />
           </View>
+          {email.length > 0 && !validateEmail(email) && (
+            <Text style={styles.errorText}>Format d'email invalide</Text>
+          )}
 
           <View style={styles.inputContainer}>
             <Ionicons name="lock-closed-outline" size={20} color="#64748B" style={styles.inputIcon} />
@@ -100,6 +103,9 @@ export default function Inscription() {
               secureTextEntry={true}
             />
           </View>
+          {password.length > 0 && password.length < 6 && (
+            <Text style={styles.errorText}>Minimum 6 caractères</Text>
+          )}
 
           <Pressable 
             style={[styles.button, (!name.trim() || !validateEmail(email) || password.length < 6 || loading) && styles.buttonDisabled]} 
@@ -143,4 +149,12 @@ const styles = StyleSheet.create({
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 40 },
   footerText: { color: '#64748B', fontSize: 15 },
   linkText: { color: '#007AFF', fontSize: 15, fontWeight: '700' },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 12,
+    marginTop: -8,
+    marginBottom: 8,
+    marginLeft: 4,
+    fontWeight: '500',
+  },
 });
