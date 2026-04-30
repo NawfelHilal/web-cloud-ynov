@@ -18,6 +18,12 @@ export default function Connexion() {
   const [loading, setLoading] = useState(false);
   const [showPhoneInput, setShowPhoneInput] = useState(false);
 
+  // Validation du format +33 6 12 34 56 78
+  const isPhoneValid = (number) => {
+    const phoneRegex = /^\+33\s?[1-9](\s?\d{2}){4}$/;
+    return phoneRegex.test(number);
+  };
+
   const handleLogin = async () => {
     if (!email || !password) {
       Toast.show({ type: 'error', text1: 'Champs requis', text2: 'Veuillez remplir tous les champs' });
@@ -155,7 +161,11 @@ export default function Connexion() {
                 </View>
 
                 {!verificationId ? (
-                  <Pressable style={styles.button} onPress={handleSendOtp}>
+                  <Pressable 
+                    style={[styles.button, (!isPhoneValid(phoneNumber) || loading) && styles.buttonDisabled]} 
+                    onPress={handleSendOtp}
+                    disabled={!isPhoneValid(phoneNumber) || loading}
+                  >
                     <Text style={styles.buttonText}>Envoyer le code</Text>
                   </Pressable>
                 ) : (

@@ -12,6 +12,8 @@ jobs:
     strategy:
       matrix:
         node-version: [ 24.x ]
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: 🏗 Setup repo
@@ -51,7 +53,6 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: dist
-          if-no-files-found: error
 
       - name: 🚀 Create update
         run: eas update --auto --platform android --non-interactive
