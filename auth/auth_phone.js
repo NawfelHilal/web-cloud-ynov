@@ -4,6 +4,9 @@ const auth = getAuth();
 
 export const setupRecaptcha = (containerId) => {
   if (typeof window !== 'undefined') {
+    if (window.recaptchaVerifier) {
+      window.recaptchaVerifier.clear();
+    }
     window.recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
       'size': 'invisible',
       'callback': (response) => {
