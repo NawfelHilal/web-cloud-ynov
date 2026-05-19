@@ -8,6 +8,7 @@ export default function Navbar() {
 
   const navItems = [
     { name: 'Accueil', path: '/', icon: 'home-outline', activeIcon: 'home' },
+    { name: 'Recettes', path: '/blog', icon: 'restaurant-outline', activeIcon: 'restaurant' },
     { name: 'Connexion', path: '/connexion', icon: 'log-in-outline', activeIcon: 'log-in' },
     { name: 'Profil', path: '/profil', icon: 'person-outline', activeIcon: 'person' },
   ];

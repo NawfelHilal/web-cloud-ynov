@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- Fonctions utilitaires ----------
+
+    // L'utilisateur est authentifié
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    // L'utilisateur est le créateur du document existant
+    function isOwner() {
+      return isAuth() && request.auth.uid == resource.data.authorId;
+    }
+
+    // Le champ authorId de la nouvelle ressource correspond à l'utilisateur connecté
+    function isCreator() {
+      return isAuth() && request.resource.data.authorId == request.auth.uid;
+    }
+
+    // ---------- Collection : recipes ----------
+    match /recipes/{recipeId} {
+      // Lecture publique pour les utilisateurs connectés
+      allow read: if isAuth();
+
+      // Création : autorisée si l'auteur déclare son propre UID
+      allow create: if isCreator();
+
+      // Mise à jour / suppression : réservée au créateur
+      allow update, delete: if isOwner();
+
+      // ---------- Sous-collection : comments ----------
+      match /comments/{commentId} {
+        allow read: if isAuth();
+        allow create: if isCreator();
+        allow update, delete: if isOwner();
+      }
+
+      // ---------- Sous-collection : favorites ----------
+      // Chaque document est identifié par l'UID de l'utilisateur
+      match /favorites/{userId} {
+        allow read: if isAuth();
+        // Un utilisateur ne peut écrire que son propre document favori
+        allow write: if isAuth() && request.auth.uid == userId;
+      }
+    }
+
+    // ---------- Collection : pushTokens ----------
+    // Lecture autorisée à tous les utilisateurs connectés (pour le broadcast)
+    // Écriture réservée au propriétaire du token
+    match /pushTokens/{userId} {
+      allow read: if isAuth();
+      allow write: if isAuth() && request.auth.uid == userId;
+    }
+
+    // ---------- Collection : users (profils optionnels) ----------
+    match /users/{userId} {
+      allow read: if isAuth();
+      allow write: if isAuth() && request.auth.uid == userId;
+    }
+  }
+}
