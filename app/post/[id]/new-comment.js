@@ -10,10 +10,53 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { addComment } from '../../../firebase/add_comment_data';
 import Toast from 'react-native-toast-message';
 
+const STAR_LABELS = ['', 'Mauvais', 'Bof', 'Bien', 'Très bien', 'Excellent !'];
+
+function StarPicker({ value, onChange }) {
+  return (
+    <View style={starStyles.wrapper}>
+      <Text style={starStyles.label}>Note</Text>
+      <View style={starStyles.row}>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <Pressable key={n} onPress={() => onChange(n)} hitSlop={8}>
+            <Ionicons
+              name={n <= value ? 'star' : 'star-outline'}
+              size={36}
+              color={n <= value ? '#F59E0B' : '#D1D5DB'}
+            />
+          </Pressable>
+        ))}
+      </View>
+      {value > 0 && (
+        <Text style={starStyles.ratingLabel}>{STAR_LABELS[value]}</Text>
+      )}
+    </View>
+  );
+}
+
+const starStyles = StyleSheet.create({
+  wrapper: {
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 18,
+    gap: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  label: { fontSize: 14, fontWeight: '700', color: '#44403C', alignSelf: 'flex-start' },
+  row: { flexDirection: 'row', gap: 6 },
+  ratingLabel: { fontSize: 15, fontWeight: '700', color: '#F59E0B' },
+});
+
 export default function NewReviewPage() {
   const { id } = useLocalSearchParams();
-  const [user, setUser] = useState(null);
+  const [user, setUser]       = useState(null);
   const [content, setContent] = useState('');
+  const [rating, setRating]   = useState(0);
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
 
@@ -33,7 +76,7 @@ export default function NewReviewPage() {
     }
     setLoading(true);
     try {
-      await addComment(id, content.trim());
+      await addComment(id, content.trim(), rating);
       Toast.show({ type: 'success', text1: '✅ Avis publié !', text2: 'Merci pour votre retour !' });
       router.replace(`/post/${id}`);
     } catch (e) {
@@ -72,7 +115,8 @@ export default function NewReviewPage() {
           </Pressable>
         </View>
 
-        <ScrollView contentContainerStyle={styles.form}>
+        <ScrollView contentContainerStyle={styles.form} keyboardShouldPersistTaps="handled">
+
           {/* Auteur */}
           <View style={styles.authorBadge}>
             <Ionicons name="person-circle-outline" size={20} color="#6366F1" />
@@ -80,6 +124,9 @@ export default function NewReviewPage() {
               {user?.displayName || user?.email || 'Anonyme'}
             </Text>
           </View>
+
+          {/* ── Sélecteur d'étoiles ── */}
+          <StarPicker value={rating} onChange={setRating} />
 
           {/* Suggestions */}
           <View style={styles.suggestionsBox}>
@@ -91,19 +138,23 @@ export default function NewReviewPage() {
             </Text>
           </View>
 
-          <Text style={styles.label}>Votre avis</Text>
-          <TextInput
-            id="input-review-content"
-            style={styles.reviewInput}
-            placeholder="Cette recette était délicieuse ! J'ai remplacé les pâtes par du riz..."
-            placeholderTextColor="#A8A29E"
-            value={content}
-            onChangeText={setContent}
-            multiline
-            textAlignVertical="top"
-            autoFocus
-          />
-          <Text style={styles.charCount}>{content.length} caractères</Text>
+          {/* Texte */}
+          <View style={styles.textSection}>
+            <Text style={styles.sectionLabel}>Votre commentaire</Text>
+            <TextInput
+              id="input-review-content"
+              style={styles.reviewInput}
+              placeholder="Cette recette était délicieuse ! J'ai remplacé les pâtes par du riz..."
+              placeholderTextColor="#A8A29E"
+              value={content}
+              onChangeText={setContent}
+              multiline
+              textAlignVertical="top"
+              autoFocus
+            />
+            <Text style={styles.charCount}>{content.length} caractères</Text>
+          </View>
+
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -142,10 +193,11 @@ const styles = StyleSheet.create({
   },
   suggestionsTitle: { fontSize: 14, fontWeight: '700', color: '#1C1917', marginBottom: 8 },
   suggestionsText: { fontSize: 13, color: '#78716C', lineHeight: 22 },
-  label: { fontSize: 14, fontWeight: '700', color: '#44403C' },
+  textSection: { gap: 8 },
+  sectionLabel: { fontSize: 14, fontWeight: '700', color: '#44403C' },
   reviewInput: {
     backgroundColor: '#FFF', borderWidth: 1, borderColor: '#FDE8D8', borderRadius: 14,
-    padding: 14, fontSize: 15, color: '#1C1917', minHeight: 180, lineHeight: 24,
+    padding: 14, fontSize: 15, color: '#1C1917', minHeight: 160, lineHeight: 24,
   },
   charCount: { textAlign: 'right', fontSize: 12, color: '#A8A29E' },
 });
