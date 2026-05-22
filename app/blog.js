@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView, FlatList,
-  Pressable, ActivityIndicator, Image, RefreshControl, ScrollView, Dimensions, Alert,
+  Pressable, ActivityIndicator, Image, RefreshControl, ScrollView, Dimensions, Alert, TextInput,
 } from 'react-native';
 import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { auth, db } from '../auth/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 
 export default function RecipesPage() {
   const [user, setUser] = useState(null);
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [limitCount, setLimitCount] = useState(10);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('recent'); // 'recent' | 'popular'
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, setUser);
@@ -22,7 +25,8 @@ export default function RecipesPage() {
 
   useEffect(() => {
     setLoading(true);
-    const q = query(collection(db, 'recipes'), orderBy('createdAt', 'desc'));
+    const orderField = sortBy === 'popular' ? 'favoriteCount' : 'createdAt';
+    const q = query(collection(db, 'recipes'), orderBy(orderField, 'desc'), limit(limitCount));
     const unsub = onSnapshot(q, (snapshot) => {
       setRecipes(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
       setLoading(false);
@@ -32,9 +36,21 @@ export default function RecipesPage() {
       setLoading(false);
     });
     return unsub;
-  }, []);
+  }, [limitCount, sortBy]);
 
-  const onRefresh = () => setRefreshing(true);
+  const onRefresh = () => {
+    setLimitCount(10);
+    setRefreshing(true);
+  };
+
+  const loadMore = () => {
+    setLimitCount((prev) => prev + 10);
+  };
+
+  const filteredRecipes = recipes.filter((r) =>
+    r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (r.ingredients && r.ingredients.join(' ').toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   const formatDate = (ts) => {
     if (!ts) return '';
@@ -100,37 +116,76 @@ export default function RecipesPage() {
     </Link>
   );
 
-  const withPhotos = recipes.filter((r) => r.photoURL);
+  const withPhotos = filteredRecipes.filter((r) => r.photoURL);
   const COLS = 3;
   const PHOTO_SIZE = (Dimensions.get('window').width - 32 - (COLS - 1) * 4) / COLS;
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.headerEmoji}>👨‍🍳</Text>
-          <View>
-            <Text style={styles.headerTitle}>Student Cook</Text>
-            <Text style={styles.headerSub}>Recettes rapides & éco</Text>
+        <View style={styles.headerTop}>
+          <View style={styles.headerLeft}>
+            <Text style={styles.headerEmoji}>👨‍🍳</Text>
+            <View>
+              <Text style={styles.headerTitle}>Student Cook</Text>
+              <Text style={styles.headerSub}>Recettes rapides & éco</Text>
+            </View>
           </View>
+          {user && (
+            <Link href="/new-post" asChild>
+              <Pressable style={styles.newBtn} id="btn-new-recipe">
+                <Ionicons name="add" size={20} color="#FFF" />
+                <Text style={styles.newBtnText}>Recette</Text>
+              </Pressable>
+            </Link>
+          )}
         </View>
-        {user && (
-          <Link href="/new-post" asChild>
-            <Pressable style={styles.newBtn} id="btn-new-recipe">
-              <Ionicons name="add" size={20} color="#FFF" />
-              <Text style={styles.newBtnText}>Recette</Text>
+
+        {/* Barre de recherche */}
+        <View style={styles.searchContainer}>
+          <Ionicons name="search-outline" size={18} color="#A8A29E" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Rechercher une recette ou ingrédient..."
+            placeholderTextColor="#A8A29E"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <Pressable onPress={() => setSearchQuery('')}>
+              <Ionicons name="close-circle" size={18} color="#A8A29E" />
             </Pressable>
-          </Link>
-        )}
+          )}
+        </View>
+
+        {/* Filtres de tri */}
+        <View style={styles.sortRow}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sortScroll}>
+            <Pressable
+              style={[styles.sortChip, sortBy === 'recent' && styles.sortChipActive]}
+              onPress={() => { setSortBy('recent'); setLimitCount(10); }}
+            >
+              <Ionicons name="time-outline" size={14} color={sortBy === 'recent' ? '#FFF' : '#A8A29E'} />
+              <Text style={[styles.sortChipText, sortBy === 'recent' && styles.sortChipTextActive]}>Récents</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.sortChip, sortBy === 'popular' && styles.sortChipActive]}
+              onPress={() => { setSortBy('popular'); setLimitCount(10); }}
+            >
+              <Ionicons name="flame-outline" size={14} color={sortBy === 'popular' ? '#FFF' : '#A8A29E'} />
+              <Text style={[styles.sortChipText, sortBy === 'popular' && styles.sortChipTextActive]}>Populaires</Text>
+            </Pressable>
+          </ScrollView>
+        </View>
       </View>
 
-      {loading ? (
+      {loading && limitCount === 10 ? (
         <ActivityIndicator size="large" color="#F97316" style={styles.loader} />
-      ) : recipes.length === 0 ? (
+      ) : filteredRecipes.length === 0 ? (
         <View style={styles.empty}>
-          <Text style={styles.emptyEmoji}>🍳</Text>
-          <Text style={styles.emptyTitle}>Aucune recette pour l'instant</Text>
-          <Text style={styles.emptyText}>Soyez le premier à partager votre recette !</Text>
+          <Text style={styles.emptyEmoji}>🔍</Text>
+          <Text style={styles.emptyTitle}>Aucun résultat</Text>
+          <Text style={styles.emptyText}>Aucune recette ne correspond à votre recherche.</Text>
           {user && (
             <Link href="/new-post" asChild>
               <Pressable style={styles.emptyBtn}>
@@ -141,12 +196,14 @@ export default function RecipesPage() {
         </View>
       ) : (
         <FlatList
-          data={recipes}
+          data={filteredRecipes}
           keyExtractor={(item) => item.id}
           renderItem={renderRecipe}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#F97316" />}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
           ListFooterComponent={
             withPhotos.length > 0 ? (
               <View style={styles.gallerySection}>
@@ -189,17 +246,69 @@ export default function RecipesPage() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFF8F5' },
   header: {
+    backgroundColor: '#FFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#FDE8D8',
+    paddingTop: 14,
+    paddingBottom: 10,
+  },
+  headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 14,
-    backgroundColor: '#FFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#FDE8D8',
+    marginBottom: 12,
   },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   headerEmoji: { fontSize: 34 },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    marginHorizontal: 20,
+    paddingHorizontal: 14,
+    height: 44,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 10,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 14,
+    color: '#1C1917',
+  },
+  sortRow: {
+    paddingLeft: 20,
+  },
+  sortScroll: {
+    gap: 8,
+    paddingRight: 20,
+  },
+  sortChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#F8FAFC',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  sortChipActive: {
+    backgroundColor: '#F97316',
+    borderColor: '#F97316',
+  },
+  sortChipText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  sortChipTextActive: {
+    color: '#FFF',
+  },
   headerTitle: { fontSize: 22, fontWeight: '800', color: '#1C1917' },
   headerSub: { fontSize: 12, color: '#A8763E', fontWeight: '500' },
   newBtn: {
