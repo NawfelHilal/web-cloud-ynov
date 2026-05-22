@@ -14,7 +14,7 @@ export default function RecipesPage() {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [limitCount, setLimitCount] = useState(10);
+  const [limitCount, setLimitCount] = useState(3);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('recent'); // 'recent' | 'popular'
 
@@ -39,12 +39,12 @@ export default function RecipesPage() {
   }, [limitCount, sortBy]);
 
   const onRefresh = () => {
-    setLimitCount(10);
+    setLimitCount(3);
     setRefreshing(true);
   };
 
   const loadMore = () => {
-    setLimitCount((prev) => prev + 10);
+    setLimitCount((prev) => prev + 3);
   };
 
   const filteredRecipes = recipes.filter((r) =>
@@ -163,14 +163,14 @@ export default function RecipesPage() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sortScroll}>
             <Pressable
               style={[styles.sortChip, sortBy === 'recent' && styles.sortChipActive]}
-              onPress={() => { setSortBy('recent'); setLimitCount(10); }}
+              onPress={() => { setSortBy('recent'); setLimitCount(3); }}
             >
               <Ionicons name="time-outline" size={14} color={sortBy === 'recent' ? '#FFF' : '#A8A29E'} />
               <Text style={[styles.sortChipText, sortBy === 'recent' && styles.sortChipTextActive]}>Récents</Text>
             </Pressable>
             <Pressable
               style={[styles.sortChip, sortBy === 'popular' && styles.sortChipActive]}
-              onPress={() => { setSortBy('popular'); setLimitCount(10); }}
+              onPress={() => { setSortBy('popular'); setLimitCount(3); }}
             >
               <Ionicons name="flame-outline" size={14} color={sortBy === 'popular' ? '#FFF' : '#A8A29E'} />
               <Text style={[styles.sortChipText, sortBy === 'popular' && styles.sortChipTextActive]}>Populaires</Text>
@@ -179,7 +179,7 @@ export default function RecipesPage() {
         </View>
       </View>
 
-      {loading && limitCount === 10 ? (
+      {loading && limitCount === 3 ? (
         <ActivityIndicator size="large" color="#F97316" style={styles.loader} />
       ) : filteredRecipes.length === 0 ? (
         <View style={styles.empty}>
