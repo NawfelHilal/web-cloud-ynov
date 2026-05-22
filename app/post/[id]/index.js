@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView, ScrollView,
   Pressable, ActivityIndicator, Image, RefreshControl,
-  Alert, Dimensions, Modal,
+  Alert, Dimensions, Modal, Platform,
 } from 'react-native';
 import { useLocalSearchParams, router, Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -89,52 +89,68 @@ export default function RecipeDetailPage() {
     }
   };
 
+  const executeDeleteRecipe = async () => {
+    setDeletingRecipe(true);
+    try {
+      await deleteRecipe(id);
+      Toast.show({ type: 'success', text1: 'Recette supprimée' });
+      router.replace('/blog');
+    } catch (e) {
+      Toast.show({ type: 'error', text1: 'Erreur', text2: e.message });
+      setDeletingRecipe(false);
+    }
+  };
+
   const handleDeleteRecipe = () => {
-    Alert.alert(
-      'Supprimer la recette',
-      'Cette action est irréversible. Voulez-vous vraiment supprimer cette recette ?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Supprimer', style: 'destructive',
-          onPress: async () => {
-            setDeletingRecipe(true);
-            try {
-              await deleteRecipe(id);
-              Toast.show({ type: 'success', text1: 'Recette supprimée' });
-              router.replace('/blog');
-            } catch (e) {
-              Toast.show({ type: 'error', text1: 'Erreur', text2: e.message });
-              setDeletingRecipe(false);
-            }
+    if (Platform.OS === 'web') {
+      if (window.confirm('Cette action est irréversible. Voulez-vous vraiment supprimer cette recette ?')) {
+        executeDeleteRecipe();
+      }
+    } else {
+      Alert.alert(
+        'Supprimer la recette',
+        'Cette action est irréversible. Voulez-vous vraiment supprimer cette recette ?',
+        [
+          { text: 'Annuler', style: 'cancel' },
+          {
+            text: 'Supprimer', style: 'destructive',
+            onPress: executeDeleteRecipe,
           },
-        },
-      ]
-    );
+        ]
+      );
+    }
+  };
+
+  const executeDeleteComment = async (commentId) => {
+    setDeletingCommentId(commentId);
+    try {
+      await deleteComment(id, commentId);
+      Toast.show({ type: 'success', text1: 'Avis supprimé' });
+    } catch (e) {
+      Toast.show({ type: 'error', text1: 'Erreur', text2: e.message });
+    } finally {
+      setDeletingCommentId(null);
+    }
   };
 
   const handleDeleteComment = (commentId) => {
-    Alert.alert(
-      'Supprimer le commentaire',
-      'Voulez-vous vraiment supprimer cet avis ?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Supprimer', style: 'destructive',
-          onPress: async () => {
-            setDeletingCommentId(commentId);
-            try {
-              await deleteComment(id, commentId);
-              Toast.show({ type: 'success', text1: 'Avis supprimé' });
-            } catch (e) {
-              Toast.show({ type: 'error', text1: 'Erreur', text2: e.message });
-            } finally {
-              setDeletingCommentId(null);
-            }
+    if (Platform.OS === 'web') {
+      if (window.confirm('Voulez-vous vraiment supprimer cet avis ?')) {
+        executeDeleteComment(commentId);
+      }
+    } else {
+      Alert.alert(
+        'Supprimer le commentaire',
+        'Voulez-vous vraiment supprimer cet avis ?',
+        [
+          { text: 'Annuler', style: 'cancel' },
+          {
+            text: 'Supprimer', style: 'destructive',
+            onPress: () => executeDeleteComment(commentId),
           },
-        },
-      ]
-    );
+        ]
+      );
+    }
   };
 
   const formatDate = (ts) => {
